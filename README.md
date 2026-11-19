@@ -91,9 +91,12 @@ activity matches on document, compound, endpoint, relation, value and target (86
 
 ## Benchmarks
 
-The `GenesisPotency-2026-benchmarks` configuration holds the public evaluation sets the paper
-reports, with their labels and provenance. They are **separate from the training data**, and
-they are not a new, untouched test set: the paper's evaluations informed method development.
+The `GenesisPotency-2026-benchmarks` configuration holds the public evaluation sets reported in
+the paper, with their labels, provenance and overlap with the training data. They are kept
+**separate from the training data**. They are not a new, untouched test set: the paper's
+evaluations informed method development.
+
+### What is in it
 
 | Split | Family | Sets | Rows | Labels | Source |
 |---|---|---:|---:|---|---|
@@ -104,12 +107,82 @@ they are not a new, untouched test set: the paper's evaluations informed method 
 | `hitid` | CACHE #1–#4 | 4 | 6,874 | active / inactive (502 active) | CACHE hit-finding challenges |
 | `hitid` | Docking screen | 3 | 2,490 | active / inactive (506 active) | AmpC, D4 and σ2 large-scale docking campaigns |
 
-- **Score within a set.** `benchmark` names the set: each OpenFE and FEP+4 source series, each
-  CASP16 target, OpenBind, and each CACHE challenge. A compound or target can recur in different
-  sets; counts are observations, not unique molecules.
-- **Where labels come from.** `label_basis` names it: the pX listed in the benchmark tables
-  (OpenFE, FEP+4), the organizers' IC50 (CASP16), the reported pKd (OpenBind), or a binary call
-  (hit-ID).
+**Potency ranking (`ranking`).** Can a model order compounds by potency within a congeneric
+series, without seeing any measurement from it?
+
+- **OpenFE**: 58 congeneric series from the OpenFE industry benchmark of relative binding free
+  energy (Baumann et al. 2026), with the experimental values as tabulated by Mattsson and
+  Walters.
+- **FEP+4**: the four classic FEP+ series CDK2, JNK1, p38 and TYK2 (Wang et al. 2015).
+- **CASP16**: Roche's autotaxin (123) and chymase (17) compounds released for the CASP16 ligand
+  affinity challenge (Gilson et al. 2026).
+- **OpenBind**: 494 compounds with measured affinity for the enterovirus A71 2A protease, from
+  the first OpenBind release (Nelen et al. 2026).
+
+**Hit identification (`hitid`).** Can a model pick out the actives among compounds that were
+actually bought and tested in a screening campaign?
+
+- **CACHE #1–#4**: compounds nominated by the participants of the first four CACHE hit-finding
+  challenges and tested by the organizers, against LRRK2 WD40, SARS-CoV-2 Nsp13, SARS-CoV-2 Mac1
+  and CBL-B.
+- **Docking screens**: compounds bought and tested after ultra-large docking screens against
+  AmpC β-lactamase (Liu et al. 2025), the dopamine D4 receptor (Lyu et al. 2019) and the σ2
+  receptor (Alon et al. 2021). `source_compound_id` is the ZINC ID.
+
+`benchmark` names the set each row belongs to, e.g. `openfe_jacs_set_tyk2`,
+`hitid_cache2_nsp13`; always score within a set. A compound or target can recur in different
+sets. `label_basis` says where each label comes from and `activity_definition` what "active"
+means in each hit-ID set; see [DATA_DICTIONARY.md](DATA_DICTIONARY.md#benchmarks).
+
+### How to evaluate
+
+The paper scores the sets as follows.
+
+- **OpenFE, FEP+4, CASP16:** Pearson r between prediction and pX within each set (each OpenFE
+  series, each FEP+4 or CASP16 target), then the mean over a family's sets weighted by their
+  number of compounds. Censored values (`label_relation` other than `=`) count at their bound.
+- **OpenBind:** Spearman ρ over all 494 compounds.
+- **Hit identification:** normalized enrichment nEF@q = (EF@q − 1) / (EF_max@q − 1) within each
+  set, where EF@q is the active fraction in the top fraction q of the ranking divided by the
+  overall active fraction, and EF_max@q is the best value any ranking could reach; 0 is random
+  and 1 is perfect. The seven sets are averaged with equal weight, at q from 0.2% to 10%.
+
+```python
+import numpy as np
+import polars as pl
+from scipy.stats import pearsonr, spearmanr
+
+base = "hf://datasets/genesisml/GenesisPotency@v2026.1/data/GenesisPotency-2026-benchmarks"
+ranking = pl.read_parquet(f"{base}/ranking.parquet")
+hitid = pl.read_parquet(f"{base}/hitid.parquet")
+# Add your model's score for each row as a column "pred" (higher = more potent / more likely active).
+
+
+def ranking_score(df: pl.DataFrame, family: str) -> float:
+    rows = df.filter(pl.col("benchmark_family") == family)
+    if family == "OpenBind":
+        return spearmanr(rows["pX"], rows["pred"]).statistic
+    sets = [(len(s), pearsonr(s["pX"], s["pred"]).statistic) for _, s in rows.group_by("benchmark")]
+    return sum(n * r for n, r in sets) / sum(n for n, _ in sets)
+
+
+def nef(active: np.ndarray, score: np.ndarray, q: float) -> float:
+    top = max(1, round(len(active) * q))
+    hits = active[np.argsort(-score, kind="stable")[:top]].mean()
+    prevalence = active.mean()
+    best = min(len(active) / top, 1 / prevalence)
+    return (hits / prevalence - 1) / (best - 1)
+
+
+def hitid_score(df: pl.DataFrame, q: float = 0.01) -> float:
+    return np.mean([
+        nef(s["label_is_hit"].to_numpy(), s["pred"].to_numpy(), q)
+        for _, s in df.group_by("benchmark")
+    ])
+```
+
+### Notes
+
 - **Hit-ID labels differ by set.** `activity_definition` says what "active" means: SPR, HTRF or FP
   readouts with different thresholds. CACHE #4 (CBL-B) actives are two-run FP-screen responders,
   not orthogonally confirmed binders.
@@ -136,15 +209,12 @@ they are not a new, untouched test set: the paper's evaluations informed method 
   `benchmarks/fetch_casp16.py` downloads them from the Prediction Center, checks that they are
   the files the paper used and writes the 140 rows in the same columns.
 - **Structures are as the benchmarks deposit them.** 144 hit-ID structures (128 CACHE, 16 docking
-  screen) are salts or solvates with several components; in 54 CACHE structures a chloride is written as a neutral chlorine atom
-  (`[Cl]`), probably an HCl salt. Their `inchikey` describes the whole mixture; compare compounds
+  screen) are salts or solvates with several components; in 54 CACHE structures a chloride is
+  written as a neutral chlorine atom (`[Cl]`), probably an HCl salt. Their `inchikey` describes the whole mixture; compare compounds
   by their largest fragment (the training-overlap columns do). Six OpenBind compounds are
   deposited as cations, two of them with an implausible protonated amide (`C([NH3+])=O`), and
   for one FEP+4 p38 compound (2x) the structure file and the label table give opposite
   stereocentres; `source_smiles` follows the structure file.
-- **Docking screens.** The AmpC, D4 and σ2 sets are the compounds tested in three large-scale
-  docking campaigns (Liu et al. 2025; Lyu et al. 2019; Alon et al. 2021), with each paper's
-  hit call. `source_compound_id` is the ZINC ID.
 
 ## Dataset structure
 
@@ -167,8 +237,8 @@ ones:
 
 [DATA_DICTIONARY.md](DATA_DICTIONARY.md) describes every column, its type and when it is null,
 for both configurations. `GenesisPotency-2026` (the default) has a single `train` split;
-`GenesisPotency-2026-benchmarks` has the `ranking` and `hitid` splits. `v2026.2` is the release
-tag; `v2026.1` has the training data alone, byte-for-byte the same file.
+`GenesisPotency-2026-benchmarks` has the `ranking` and `hitid` splits. `v2026.1` is the release
+tag.
 
 ## Using it
 
@@ -180,7 +250,7 @@ python -m pip install polars huggingface_hub   # examples tested with polars 2.1
 import polars as pl
 
 # The full file needs about 11 GB of memory; pass columns=[...] to load less.
-df = pl.read_parquet("hf://datasets/genesisml/GenesisPotency@v2026.2/data/GenesisPotency-2026/data.parquet")
+df = pl.read_parquet("hf://datasets/genesisml/GenesisPotency@v2026.1/data/GenesisPotency-2026/data.parquet")
 
 potency = df.filter(pl.col("task") == "regression")                  # pIC50 / pKi / pKd
 exact = potency.filter(pl.col("label_relation") == "=")              # drop censored values
@@ -193,7 +263,7 @@ Or stream rows with the `datasets` library:
 ```python
 from datasets import load_dataset
 
-ds = load_dataset("genesisml/GenesisPotency", split="train", revision="v2026.2", streaming=True)
+ds = load_dataset("genesisml/GenesisPotency", split="train", revision="v2026.1", streaming=True)
 print(next(iter(ds)))
 ```
 
@@ -201,26 +271,29 @@ To download a local copy and run the quickstart:
 
 ```bash
 hf download genesisml/GenesisPotency data/GenesisPotency-2026/data.parquet \
-  --repo-type dataset --revision v2026.2 --local-dir .
+  --repo-type dataset --revision v2026.1 --local-dir .
 python examples/quickstart.py data/GenesisPotency-2026/data.parquet
 ```
 
 [examples/quickstart.py](examples/quickstart.py) shows filtering, deduplication, agent-corrected
 rows, ambiguous rows and decoys.
 
-The benchmarks load the same way:
+The benchmarks are the `GenesisPotency-2026-benchmarks` configuration (see
+[How to evaluate](#how-to-evaluate) for reading them with polars):
 
 ```python
 from datasets import load_dataset
 
 ranking = load_dataset("genesisml/GenesisPotency", "GenesisPotency-2026-benchmarks",
-                       split="ranking", revision="v2026.2")
+                       split="ranking", revision="v2026.1")
+hitid = load_dataset("genesisml/GenesisPotency", "GenesisPotency-2026-benchmarks",
+                     split="hitid", revision="v2026.1")
 ```
 
 To add the CASP16 rows (needs `rdkit` and access to predictioncenter.org):
 
 ```bash
-hf download genesisml/GenesisPotency --repo-type dataset --revision v2026.2 --local-dir . \
+hf download genesisml/GenesisPotency --repo-type dataset --revision v2026.1 --local-dir . \
   --include "benchmarks/*"
 python benchmarks/fetch_casp16.py --out casp16.parquet
 ```
@@ -290,7 +363,7 @@ accompanying paper's reference will be added here when it is published.
   author       = {{Genesis Molecular AI}},
   year         = {2026},
   howpublished = {\url{https://huggingface.co/datasets/genesisml/GenesisPotency}},
-  note         = {Release v2026.2}
+  note         = {Release v2026.1}
 }
 ```
 
@@ -313,5 +386,4 @@ Hugging Face Community tab. For a data problem, include the `row_id`.
 | [validation_report.md](validation_report.md) | Checks run on these files before release |
 | [NOTICE.md](NOTICE.md), [LICENSE](LICENSE) | Attribution, and the CC BY-SA 4.0 license |
 
-Release v2026.2 (2026): adds the benchmark configuration. The training file is unchanged from
-v2026.1. Row and context IDs are stable within a version.
+Release v2026.1 (2026). Row and context IDs are stable within this version.

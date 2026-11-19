@@ -1,6 +1,6 @@
 {
   "name": "GenesisPotency-2026",
-  "version": "v2026.2",
+  "version": "v2026.1",
   "license": "CC-BY-SA-4.0",
   "schema": "v4",
   "counts": {
@@ -59,8 +59,8 @@
       "sha256": "a89b2df4a6e4e727f5eaf902aa4180c5241011e363165043e6cb8052289b1434"
     },
     "README.md": {
-      "bytes": 18820,
-      "sha256": "c06813f9f80dc36e80ffab1275b6ce1a20321a3ddee5e5e349146794217b9d7a"
+      "bytes": 22023,
+      "sha256": "c43624296ede99fb15feb0715a31c4d3a79263511c5f79b9cd93501231eadac4"
     },
     "assets/genesis-logo.png": {
       "bytes": 12257,
@@ -72,7 +72,7 @@
     },
     "benchmarks/ranking_casp16_membership.parquet": {
       "bytes": 14478,
-      "sha256": "2a4255bdebb0858dd04cb816f97a714457e214b3f309821af4a72e57bcf292cc"
+      "sha256": "4dc4a853663923a1c101cbbd560a25d2fa68e49b419938f670404d843d6dc315"
     },
     "data/GenesisPotency-2026/data.parquet": {
       "bytes": 214000327,
@@ -80,19 +80,19 @@
     },
     "data/GenesisPotency-2026-benchmarks/hitid.parquet": {
       "bytes": 689883,
-      "sha256": "7310e92cec28bd04e35f239829936c20eb62a616c75c7b7eb64014e462248bb2"
+      "sha256": "511d1fc203a927b4af15434086a68c4e2b75205fc6b2a444a9beea058fa3448e"
     },
     "data/GenesisPotency-2026-benchmarks/ranking.parquet": {
       "bytes": 130098,
-      "sha256": "3e8ac79aaac47ffc332d79009f882f1f12456e79cef5794c135665f57769bedf"
+      "sha256": "ba07a9b9ce15c406d3924671c376250dd5825749794c83aa6262be81f80750c0"
     },
     "examples/quickstart.py": {
       "bytes": 2383,
-      "sha256": "9f03b43a2ac60de975e96b63050e08ba2504b30c9c425c16d83dab41c2584c0b"
+      "sha256": "ad9965f1878109fda278d9c1c8d7d19d379660de31f38c954029448ca78977c3"
     },
     "validation_report.md": {
       "bytes": 3634,
-      "sha256": "d501dc2ad96c6c16a441cfe49441ac5e3c922570b135f80257a72c5a5ff6de9d"
+      "sha256": "61a0cf60e3298fa872550ca36e9a904cea760a98562ce936d7c911097ebbabaf"
     }
   }
 }
