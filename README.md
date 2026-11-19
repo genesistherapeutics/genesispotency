@@ -18,6 +18,9 @@ Molecular AI used to train the potency models in the accompanying paper (see [Ci
 Every row is a compound, a protein target and either a potency value (pIC50, pKi, pKd) or an
 active/inactive call, exactly as used in training, together with the upstream record it came from.
 
+**Get the data:** the files are hosted on Hugging Face at
+[genesisml/GenesisPotency](https://huggingface.co/datasets/genesisml/GenesisPotency/tree/v2026.1); [Using it](#using-it) shows how to load them.
+
 - **5,410,616 rows** from ChEMBL 37, BindingDB (2026-07) and PubChem HTS bioassays.
 - **1,773,271 potency measurements** and **3,637,345 binary calls**, including 200,662
   property-matched synthetic decoys.
@@ -377,8 +380,8 @@ Hugging Face Community tab. For a data problem, include the `row_id`.
 
 | File | Content |
 |---|---|
-| `data/GenesisPotency-2026/data.parquet` | The training data (one file, zstd; on Hugging Face) |
-| `data/GenesisPotency-2026-benchmarks/` | The benchmark splits `ranking.parquet`, `hitid.parquet` (on Hugging Face) |
+| [`data/GenesisPotency-2026/data.parquet`](https://huggingface.co/datasets/genesisml/GenesisPotency/blob/v2026.1/data/GenesisPotency-2026/data.parquet) | The training data (one file, zstd; on Hugging Face) |
+| [`data/GenesisPotency-2026-benchmarks/`](https://huggingface.co/datasets/genesisml/GenesisPotency/tree/v2026.1/data/GenesisPotency-2026-benchmarks) | The benchmark splits `ranking.parquet`, `hitid.parquet` (on Hugging Face) |
 | `benchmarks/fetch_casp16.py`, `benchmarks/ranking_casp16_membership.parquet` | Rebuilds the CASP16 rows from the organizers' files |
 | [DATA_DICTIONARY.md](DATA_DICTIONARY.md) | Every column: type, meaning, nulls |
 | [examples/quickstart.py](examples/quickstart.py) | Loading, filtering, deduplication, candidates |
