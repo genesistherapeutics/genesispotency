@@ -88,7 +88,7 @@ python -m pip install "polars==2.1.0" huggingface_hub
 import polars as pl
 
 # The full file needs about 11 GB of memory; pass columns=[...] to load less.
-df = pl.read_parquet("hf://datasets/genesisml/GenesisPotency@v1/data/GenesisPotency-2026/data.parquet")
+df = pl.read_parquet("hf://datasets/genesisml/GenesisPotency@v2026.1/data/GenesisPotency-2026/data.parquet")
 
 potency = df.filter(pl.col("task") == "regression")                  # pIC50 / pKi / pKd
 exact = potency.filter(pl.col("label_relation") == "=")              # drop censored values
@@ -98,7 +98,7 @@ measured = df.filter(pl.col("category") != "synthetic_decoy")        # no decoys
 
 See `examples/quickstart.py` and `DATA_DICTIONARY.md` for every column.
 
-The Hugging Face configuration is `GenesisPotency-2026`; `v1` pins this release.
+The Hugging Face configuration is `GenesisPotency-2026`; `v2026.1` pins this release.
 You can also stream rows with the `datasets` library (install with
 `python -m pip install datasets`):
 
@@ -108,7 +108,7 @@ from datasets import load_dataset
 data = load_dataset(
     "genesisml/GenesisPotency",
     name="GenesisPotency-2026",
-    revision="v1",
+    revision="v2026.1",
     token=True,  # Use your saved HF login while the repository is private.
     streaming=True,
 )
@@ -120,7 +120,7 @@ To download a local copy and run the quickstart:
 
 ```bash
 hf download genesisml/GenesisPotency data/GenesisPotency-2026/data.parquet \
-  --repo-type dataset --revision v1 --local-dir .
+  --repo-type dataset --revision v2026.1 --local-dir .
 python examples/quickstart.py data/GenesisPotency-2026/data.parquet
 ```
 
@@ -190,4 +190,4 @@ If you use this dataset, cite the accompanying paper and the upstream sources li
 | `validation_report.md` | Checks run on this file before release |
 | `NOTICE.md`, `LICENSE` | Attribution, and the full CC BY-SA 4.0 license |
 
-Release v1 (2026). Row and context IDs are stable within this version.
+Release v2026.1 (2026). Row and context IDs are stable within this version.

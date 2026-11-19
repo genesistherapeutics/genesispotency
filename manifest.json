@@ -1,6 +1,6 @@
 {
   "name": "GenesisPotency-2026",
-  "version": "v1",
+  "version": "v2026.1",
   "license": "CC-BY-SA-4.0",
   "schema": "v4",
   "counts": {
@@ -39,16 +39,16 @@
       "sha256": "4bbfd343a306aca6c441421d5992c1a24ffe03b5a3e635a1f0ec3b3cc0cc8c7d"
     },
     "README.md": {
-      "bytes": 10685,
-      "sha256": "7c9a4af7edd8ddec18028261eaf68cf0d40725dbe006eb2531d00d6fb484033d"
+      "bytes": 10710,
+      "sha256": "d6ab02a09672070c9911a9c33bdfddccc7ad1ab80778da4039249da3d6696ef3"
     },
     "data/GenesisPotency-2026/data.parquet": {
       "bytes": 214000327,
       "sha256": "b494807d2051af1b3d820d596c92b37a46962087539c4c9c933eddf7fa1c6df1"
     },
     "examples/quickstart.py": {
-      "bytes": 2319,
-      "sha256": "fb0d4b4b2ad3d308f457d7edffbe7eab55d31069f4af243a40015884e32c3421"
+      "bytes": 2324,
+      "sha256": "3d2ff0fbc84f8c30c62e71437bd2b06c87c6d9ecff9b20bd080b7d4923333342"
     },
     "validation_report.md": {
       "bytes": 2130,
