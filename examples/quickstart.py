@@ -12,7 +12,7 @@ import polars as pl
 path = (
     sys.argv[1]
     if len(sys.argv) > 1
-    else "hf://datasets/genesisml/GenesisPotency@v2026.1/data/GenesisPotency-2026/data.parquet"
+    else "hf://datasets/genesisml/GenesisPotency@v2026.2/data/GenesisPotency-2026/data.parquet"
 )
 df = pl.read_parquet(path)
 print(df.group_by("retrieved_from", "task").len().sort("retrieved_from", "task"))

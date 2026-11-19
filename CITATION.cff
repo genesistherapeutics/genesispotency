@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use this dataset, please cite it as below, and cite the upstream sources listed in NOTICE.md."
 type: dataset
 title: "GenesisPotency-2026: public protein-ligand potency data with upstream provenance"
-version: "v2026.1"
+version: "v2026.2"
 authors:
   - name: "Genesis Molecular AI"
 license: CC-BY-SA-4.0

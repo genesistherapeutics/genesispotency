@@ -1,6 +1,9 @@
 # GenesisPotency-2026 data dictionary
 
-One Parquet file, 49 columns, one row per training example. IDs are strings even when numeric.
+Two configurations: the training data (`GenesisPotency-2026`, below) and the paper's public
+evaluation sets (`GenesisPotency-2026-benchmarks`, [at the end](#benchmarks)).
+
+The training data is one Parquet file, 49 columns, one row per training example. IDs are strings even when numeric.
 **Null** means not applicable or not available; an **empty list** means known to be none.
 
 ## Identity
@@ -77,3 +80,39 @@ One Parquet file, 49 columns, one row per training example. IDs are strings even
 |---|---|---|
 | `decoy_partner_smiles` | string | Decoys only: canonical SMILES of the measured compound the decoy was property-matched to (its measurement may have been removed by curation) |
 | `decoy_partner_inchikey` | string | Decoys only: its InChIKey (null for one partner with a dummy atom) |
+
+## Benchmarks
+
+`GenesisPotency-2026-benchmarks` has two splits with the same 33 columns:
+`ranking` (`data/GenesisPotency-2026-benchmarks/ranking.parquet`, potency values) and `hitid`
+(`hitid.parquet`, active/inactive calls). `benchmarks/fetch_casp16.py` writes the CASP16 rows
+in the same columns.
+
+| Column | Type | Meaning |
+|---|---|---|
+| `row_id` | string | `GP26-R` (ranking) or `GP26-H` (hit-ID) + 5 digits, dense; the CASP16 rows written by the fetch script follow the shipped ranking rows. Stable within this version |
+| `benchmark` | string | The evaluation set the row belongs to, e.g. `openfe_jacs_set_tyk2`, `hitid_cache2_nsp13`. Score within a set |
+| `benchmark_family` | string | `OpenFE`, `FEP+4`, `CASP16`, `OpenBind`, `CACHE`, `Docking screen` (AmpC, D4, σ2) |
+| `task`, `category`, `readout` | string | As in the training data: `regression` / `pX` / `IC50`, `Ki`, `Kd`, or `unspecified` (OpenFE, whose tables give a pX without its endpoint); `classification` / `active` or `inactive` / `binary` |
+| `smiles` | string | RDKit canonical SMILES of `source_smiles` |
+| `inchikey` | string | Stereo-aware InChIKey of `source_smiles`; with `benchmark` it identifies a compound |
+| `source_smiles` | string | The structure as the benchmark deposits it (CASP16: the organizers' string) |
+| `model_input_smiles` | string | The protonation state the paper's models were given; null on CASP16 rows |
+| `target_name` | string | Target as the benchmark names it |
+| `target_sequence`, `target_sequence_md5` | string | Protein sequence the paper's models were given, and its MD5 |
+| `label`, `label_relation`, `pX` | float, string, float | Regression only, as in the training data: `label = clip(pX − 6, −6, 6)`; relation in pX sense |
+| `label_is_hit` | int8 | Hit-ID only: 1 active, 0 inactive, by `activity_definition` |
+| `label_basis` | string | Where the label comes from: `benchmark_table_pX` (OpenFE, FEP+4: the pX listed in the Mattsson–Walters benchmark tables), `organizer_IC50` (CASP16: from the organizers' IC50), `reported_pKd` (OpenBind), `binary_call` (hit-ID) |
+| `activity_definition` | string | Hit-ID only: what "active" means for this set; it differs between sets |
+| `mae_eligible` | bool | OpenFE, FEP+4, CASP16: whether the paper used the row for absolute-error metrics (not for CASP16 autotaxin); null on OpenBind |
+| `source_value`, `source_units` | float, string | Upstream concentration (molar) where the benchmark gives one: FEP+4 IC50/Ki, and the curated SPR Kd on CACHE #1 LRRK2 rows |
+| `source_dg_kcal_mol` | float | Upstream binding free energy (OpenFE, FEP+4) |
+| `source_label` | string | Hit-ID only: the call as the source states it, before any endpoint revision |
+| `source_compound_id` | string | The benchmark's own compound ID (CACHE ID, ZINC ID, OpenBind crystal code, CASP16 ligand ID) |
+| `measurement_id`, `measurement_source` | string | The source record and the file or page it came from (with commit or SHA-256 where available) |
+| `energy_source` | string | OpenFE, FEP+4: the file the free energy came from |
+| `reference` | string | Where to find and cite the set |
+| `note` | string | Set-specific caveat (CACHE #1 endpoint revision, CACHE #4 hit definition, OpenBind surrogate) |
+| `target_max_identity_in_training` | float | Highest sequence identity of this target to any training target (local alignment covering >= 50% of either sequence) |
+| `target_in_training` | bool | Some training target has identity >= 0.90 to this one over an alignment covering >= 50% of either sequence (sequence rule only; accessions are not compared) |
+| `pair_in_training` | bool | The same compound (InChIKey connectivity block, ignoring stereo and charge) was measured on such a training target |

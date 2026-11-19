@@ -28,3 +28,24 @@ data and the upstream ChEMBL 37 and BindingDB 2026-07 records. All passed.
   `duplicate_of_row_id` set exactly on BindingDB rows whose ChEMBL activity is a ChEMBL row of the
   same task.
 - **Text:** ID columns numeric or ChEMBL-formatted; no unexpected source names in any column.
+
+## Benchmarks
+
+Files `data/GenesisPotency-2026-benchmarks/ranking.parquet` (SHA-256 `3e8ac79aaac47ffc332d79009f882f1f12456e79cef5794c135665f57769bedf`, 1,454 rows) and `data/GenesisPotency-2026-benchmarks/hitid.parquet` (SHA-256 `7310e92cec28bd04e35f239829936c20eb62a616c75c7b7eb64014e462248bb2`, 9,364 rows).
+All passed.
+
+- **Inputs:** every input is the paper's evaluation data, identified by SHA-256.
+- **Membership:** `ranking` holds OpenFE (873), FEP+4 (87) and OpenBind (494) observations;
+  `hitid` holds the paper's seven hit-identification sets (9,364 compounds, 1,008 active).
+  CASP16 (140) is rebuilt by the fetch script.
+- **Labels:** every ranking label equals the paper's; every hit-ID label equals the paper's,
+  joined one-to-one on set and stereo-aware InChIKey. CACHE #1 has 101 actives at Kd <= 150 uM;
+  the 88 compounds it moves from active to inactive are the only calls that differ from the
+  source.
+- **Structures:** `smiles` and `inchikey` are recomputed from the deposited structure on every
+  row and equal the paper's InChIKeys.
+- **Training overlap:** target identity uses the paper's training-exclusion rule (identity >=
+  0.90 over >= 50% coverage). A training target with one residue changed must be flagged and its
+  reversed sequence must not; a training (compound, target) pair must be flagged. All did.
+- **CASP16 fetch script:** run on the organizers' files, it rebuilds the 140 CASP16 rows with the
+  same structures, InChIKeys and relations, and pX within 1e-9.

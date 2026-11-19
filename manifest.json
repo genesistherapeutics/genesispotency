@@ -1,6 +1,6 @@
 {
   "name": "GenesisPotency-2026",
-  "version": "v2026.1",
+  "version": "v2026.2",
   "license": "CC-BY-SA-4.0",
   "schema": "v4",
   "counts": {
@@ -20,6 +20,26 @@
     "decoys": 200662,
     "rows": 5410616
   },
+  "benchmark_counts": {
+    "ranking": {
+      "rows_in_file": 1454,
+      "rows_rebuilt_by_fetch_script": 140,
+      "by_benchmark_family": {
+        "CASP16": 140,
+        "FEP+4": 87,
+        "OpenBind": 494,
+        "OpenFE": 873
+      }
+    },
+    "hitid": {
+      "rows_in_file": 9364,
+      "rows_rebuilt_by_fetch_script": 0,
+      "by_benchmark_family": {
+        "CACHE": 6874,
+        "Docking screen": 2490
+      }
+    }
+  },
   "upstream": {
     "ChEMBL": "37",
     "BindingDB": "2026-07",
@@ -27,36 +47,52 @@
   },
   "files": {
     "DATA_DICTIONARY.md": {
-      "bytes": 6552,
-      "sha256": "ebe936b43f28bfe59d66b18e1493af07d8b375205ffe96b168bb6f52780c628b"
+      "bytes": 10496,
+      "sha256": "8fe16797fb10bffe6c0ad4077d9a334776d7e26fbae75cab03c992c9b695797c"
     },
     "LICENSE": {
       "bytes": 18375,
       "sha256": "cde7883b9050a1104f4ac19a1572aafd6e5d7323b68351aaf51fbf4beba54966"
     },
     "NOTICE.md": {
-      "bytes": 2317,
-      "sha256": "bf56da3d73e93dae3ed25ff3dc33ffaa6be6954c7f27fc1156310e2841cad644"
+      "bytes": 7075,
+      "sha256": "a89b2df4a6e4e727f5eaf902aa4180c5241011e363165043e6cb8052289b1434"
     },
     "README.md": {
-      "bytes": 12675,
-      "sha256": "50e65d64cc82d1e7858bc79c3e4581018b5c7c5e0e4e4728df935998f16f5ad0"
+      "bytes": 18820,
+      "sha256": "c06813f9f80dc36e80ffab1275b6ce1a20321a3ddee5e5e349146794217b9d7a"
     },
     "assets/genesis-logo.png": {
       "bytes": 12257,
       "sha256": "f35fb74af0af33b93af127b2ac8b3a90e26734efd3b77095665997142ed206f2"
     },
+    "benchmarks/fetch_casp16.py": {
+      "bytes": 6008,
+      "sha256": "573caad632661b10e27f10939ca58420a72db8b6dfd4a5b9968d960fdef4db8b"
+    },
+    "benchmarks/ranking_casp16_membership.parquet": {
+      "bytes": 14478,
+      "sha256": "2a4255bdebb0858dd04cb816f97a714457e214b3f309821af4a72e57bcf292cc"
+    },
     "data/GenesisPotency-2026/data.parquet": {
       "bytes": 214000327,
       "sha256": "b494807d2051af1b3d820d596c92b37a46962087539c4c9c933eddf7fa1c6df1"
     },
+    "data/GenesisPotency-2026-benchmarks/hitid.parquet": {
+      "bytes": 689883,
+      "sha256": "7310e92cec28bd04e35f239829936c20eb62a616c75c7b7eb64014e462248bb2"
+    },
+    "data/GenesisPotency-2026-benchmarks/ranking.parquet": {
+      "bytes": 130098,
+      "sha256": "3e8ac79aaac47ffc332d79009f882f1f12456e79cef5794c135665f57769bedf"
+    },
     "examples/quickstart.py": {
       "bytes": 2383,
-      "sha256": "ad9965f1878109fda278d9c1c8d7d19d379660de31f38c954029448ca78977c3"
+      "sha256": "9f03b43a2ac60de975e96b63050e08ba2504b30c9c425c16d83dab41c2584c0b"
     },
     "validation_report.md": {
-      "bytes": 2130,
-      "sha256": "74d0597a48d3b5981cd88e064a7a34440fb6d8a9f91486b76a409424f419dfce"
+      "bytes": 3634,
+      "sha256": "d501dc2ad96c6c16a441cfe49441ac5e3c922570b135f80257a72c5a5ff6de9d"
     }
   }
 }
