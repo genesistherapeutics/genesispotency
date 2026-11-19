@@ -1,0 +1,58 @@
+{
+  "name": "GenesisPotency-2026",
+  "version": "1.0",
+  "license": "CC-BY-SA-4.0",
+  "schema": "v4",
+  "counts": {
+    "assay_contexts": 69939,
+    "by_source_task": {
+      "BindingDB/classification": 502528,
+      "BindingDB/regression": 1022070,
+      "ChEMBL/classification": 350975,
+      "ChEMBL/regression": 751201,
+      "PubChem/classification": 2583180
+    },
+    "corrected_by_agent": {
+      "label": 854,
+      "none": 5409165,
+      "structure": 597
+    },
+    "decoys": 200662,
+    "rows": 5410616
+  },
+  "upstream": {
+    "ChEMBL": "37",
+    "BindingDB": "2026-07",
+    "PubChem": "HTS bioassays retrieved Aug-Oct 2025"
+  },
+  "files": {
+    "DATA_DICTIONARY.md": {
+      "bytes": 6552,
+      "sha256": "ebe936b43f28bfe59d66b18e1493af07d8b375205ffe96b168bb6f52780c628b"
+    },
+    "LICENSE": {
+      "bytes": 18860,
+      "sha256": "9f15da89368c7493556a1edb70acd2d6f631250fb530006bcd0ecded4962d1eb"
+    },
+    "NOTICE.md": {
+      "bytes": 2317,
+      "sha256": "4bbfd343a306aca6c441421d5992c1a24ffe03b5a3e635a1f0ec3b3cc0cc8c7d"
+    },
+    "README.md": {
+      "bytes": 9846,
+      "sha256": "486d2efed0837333a8f634d312c717deb98c9ab47b895b932e3ad4153caac561"
+    },
+    "data/genesispotency-2026.parquet": {
+      "bytes": 214000327,
+      "sha256": "b494807d2051af1b3d820d596c92b37a46962087539c4c9c933eddf7fa1c6df1"
+    },
+    "examples/quickstart.py": {
+      "bytes": 2121,
+      "sha256": "7f153d0a7a40f3d58527ba6e329259de8348a23eadaa19732b64483e38695a82"
+    },
+    "validation_report.md": {
+      "bytes": 2125,
+      "sha256": "d939083ce6b3d0348361d7a0079652539cdc40a4c44f71fb33670426dfe15138"
+    }
+  }
+}
