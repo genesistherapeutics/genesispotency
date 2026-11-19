@@ -31,24 +31,28 @@
       "sha256": "ebe936b43f28bfe59d66b18e1493af07d8b375205ffe96b168bb6f52780c628b"
     },
     "LICENSE": {
-      "bytes": 18860,
-      "sha256": "9f15da89368c7493556a1edb70acd2d6f631250fb530006bcd0ecded4962d1eb"
+      "bytes": 18375,
+      "sha256": "cde7883b9050a1104f4ac19a1572aafd6e5d7323b68351aaf51fbf4beba54966"
     },
     "NOTICE.md": {
       "bytes": 2317,
-      "sha256": "4bbfd343a306aca6c441421d5992c1a24ffe03b5a3e635a1f0ec3b3cc0cc8c7d"
+      "sha256": "bf56da3d73e93dae3ed25ff3dc33ffaa6be6954c7f27fc1156310e2841cad644"
     },
     "README.md": {
-      "bytes": 10469,
-      "sha256": "fdc177e955e4a93bc4f9aa7753dc216a3d1d00f386cdd7c3514a44498ce8ba3f"
+      "bytes": 12623,
+      "sha256": "451830f52d96c637b39757c186ca3409002792badd57b9a3822a0eeeddd7f44f"
+    },
+    "assets/genesis-logo.png": {
+      "bytes": 12257,
+      "sha256": "f35fb74af0af33b93af127b2ac8b3a90e26734efd3b77095665997142ed206f2"
     },
     "data/GenesisPotency-2026/data.parquet": {
       "bytes": 214000327,
       "sha256": "b494807d2051af1b3d820d596c92b37a46962087539c4c9c933eddf7fa1c6df1"
     },
     "examples/quickstart.py": {
-      "bytes": 2324,
-      "sha256": "3d2ff0fbc84f8c30c62e71437bd2b06c87c6d9ecff9b20bd080b7d4923333342"
+      "bytes": 2383,
+      "sha256": "ad9965f1878109fda278d9c1c8d7d19d379660de31f38c954029448ca78977c3"
     },
     "validation_report.md": {
       "bytes": 2130,

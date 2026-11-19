@@ -1,8 +1,8 @@
 """GenesisPotency-2026 quickstart: load, filter, deduplicate, read candidates.
 
-python -m pip install "polars==2.1.0" huggingface_hub
-python examples/quickstart.py  # Downloads the pinned release; hf auth login if private.
-python examples/quickstart.py data/GenesisPotency-2026/data.parquet
+python -m pip install polars huggingface_hub   # tested with polars 2.1.0
+python examples/quickstart.py                                         # reads the release from Hugging Face
+python examples/quickstart.py data/GenesisPotency-2026/data.parquet   # or a local copy
 """
 
 import sys

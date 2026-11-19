@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this dataset, please cite it as below, and cite the upstream sources listed in NOTICE.md."
+type: dataset
+title: "GenesisPotency-2026: public protein-ligand potency data with upstream provenance"
+version: "v2026.1"
+authors:
+  - name: "Genesis Molecular AI"
+license: CC-BY-SA-4.0
+url: "https://huggingface.co/datasets/genesisml/GenesisPotency"
+repository: "https://huggingface.co/datasets/genesisml/GenesisPotency"
+repository-code: "https://github.com/genesistherapeutics/genesispotency"
+keywords:
+  - drug discovery
+  - bioactivity
+  - binding affinity
+  - protein-ligand
+  - cheminformatics
+  - ChEMBL
+  - BindingDB
+  - PubChem

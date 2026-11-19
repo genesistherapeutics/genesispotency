@@ -1,6 +1,6 @@
 # Notice and attribution
 
-GenesisPotency-2026 is © 2026 Genesis Therapeutics, released under the Creative Commons
+GenesisPotency-2026 is © 2026 Genesis Molecular AI, released under the Creative Commons
 Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0,
 https://creativecommons.org/licenses/by-sa/4.0/). It is an adaptation of the public databases
 below. When you redistribute or adapt it, keep this notice, credit the sources and share your
