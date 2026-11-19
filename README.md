@@ -1,6 +1,6 @@
 # GenesisPotency-2026
 
-> The data file (`data/genesispotency-2026.parquet`, 214,000,327 bytes, SHA-256 `b494807d2051af1b3d820d596c92b37a46962087539c4c9c933eddf7fa1c6df1`) is hosted on [Hugging Face](https://huggingface.co/datasets/genesisml/GenesisPotency).
+> The data file (`data/GenesisPotency-2026/data.parquet`, 214,000,327 bytes, SHA-256 `b494807d2051af1b3d820d596c92b37a46962087539c4c9c933eddf7fa1c6df1`) is hosted on [Hugging Face](https://huggingface.co/datasets/genesisml/GenesisPotency).
 
 GenesisPotency-2026 is the public-source part of the protein–ligand potency data used to train
 the models in [the accompanying paper](#citation). Every row is a compound, a protein target and
@@ -77,11 +77,18 @@ activity matches on document, compound, endpoint, relation, value and target (86
 
 ## Using it
 
+Examples were tested with Polars 2.1.0. Install it with Hugging Face authentication
+support, then run `hf auth login` once while the repository is private:
+
+```bash
+python -m pip install "polars==2.1.0" huggingface_hub
+```
+
 ```python
 import polars as pl
 
 # The full file needs about 11 GB of memory; pass columns=[...] to load less.
-df = pl.read_parquet("hf://datasets/genesisml/GenesisPotency/data/genesispotency-2026.parquet")
+df = pl.read_parquet("hf://datasets/genesisml/GenesisPotency@v1/data/GenesisPotency-2026/data.parquet")
 
 potency = df.filter(pl.col("task") == "regression")                  # pIC50 / pKi / pKd
 exact = potency.filter(pl.col("label_relation") == "=")              # drop censored values
@@ -90,6 +97,32 @@ measured = df.filter(pl.col("category") != "synthetic_decoy")        # no decoys
 ```
 
 See `examples/quickstart.py` and `DATA_DICTIONARY.md` for every column.
+
+The Hugging Face configuration is `GenesisPotency-2026`; `v1` pins this release.
+You can also stream rows with the `datasets` library (install with
+`python -m pip install datasets`):
+
+```python
+from datasets import load_dataset
+
+data = load_dataset(
+    "genesisml/GenesisPotency",
+    name="GenesisPotency-2026",
+    revision="v1",
+    token=True,  # Use your saved HF login while the repository is private.
+    streaming=True,
+)
+rows = next(iter(data.values()))
+first_row = next(iter(rows))
+```
+
+To download a local copy and run the quickstart:
+
+```bash
+hf download genesisml/GenesisPotency data/GenesisPotency-2026/data.parquet \
+  --repo-type dataset --revision v1 --local-dir .
+python examples/quickstart.py data/GenesisPotency-2026/data.parquet
+```
 
 - **Duplicates across sources.** BindingDB re-hosts much of ChEMBL. 504,807 BindingDB rows are the
   same measurement as a ChEMBL row in this file and point to it with `duplicate_of_row_id`; the
@@ -150,11 +183,11 @@ If you use this dataset, cite the accompanying paper and the upstream sources li
 
 | File | Content |
 |---|---|
-| `data/genesispotency-2026.parquet` | The dataset (one file, zstd) |
+| `data/GenesisPotency-2026/data.parquet` | The dataset (one file, zstd) |
 | `DATA_DICTIONARY.md` | Every column: type, meaning, nulls |
 | `examples/quickstart.py` | Loading, filtering, deduplication, candidates |
 | `manifest.json` | Files, sizes, SHA-256, row counts |
 | `validation_report.md` | Checks run on this file before release |
 | `NOTICE.md`, `LICENSE` | Attribution, and the full CC BY-SA 4.0 license |
 
-Release v2026.1 (2026). Row and context IDs are stable within this version.
+Release v1 (2026). Row and context IDs are stable within this version.

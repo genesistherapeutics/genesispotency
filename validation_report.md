@@ -1,6 +1,6 @@
 # Validation report
 
-File `data/genesispotency-2026.parquet`, SHA-256 `b494807d2051af1b3d820d596c92b37a46962087539c4c9c933eddf7fa1c6df1`, 5,410,616 rows.
+File `data/GenesisPotency-2026/data.parquet`, SHA-256 `b494807d2051af1b3d820d596c92b37a46962087539c4c9c933eddf7fa1c6df1`, 5,410,616 rows.
 
 Every check below runs on every row unless stated, comparing the file with the training
 data and the upstream ChEMBL 37 and BindingDB 2026-07 records. All passed.
