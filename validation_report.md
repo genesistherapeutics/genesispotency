@@ -31,8 +31,8 @@ data and the upstream ChEMBL 37 and BindingDB 2026-07 records. All passed.
 
 ## Benchmarks
 
-File `data/GenesisPotency-2026/ranking_benchmark.parquet`, SHA-256 `83a19cef1418ef52085ab6634b19a473f41e49d4a6d3290c53f1d8c9d49fd1f7`, 1,594 rows.
-File `data/GenesisPotency-2026/hitid_benchmark.parquet`, SHA-256 `511d1fc203a927b4af15434086a68c4e2b75205fc6b2a444a9beea058fa3448e`, 9,364 rows.
+File `data/GenesisPotency-2026/ranking_benchmark.parquet`, SHA-256 `594b42b5b083c15b47fbc386f142e38f1687a28196723cafd4355e259a60da78`, 1,594 rows.
+File `data/GenesisPotency-2026/hitid_benchmark.parquet`, SHA-256 `a345c7c8d1d099116d8a56e190cc25325523ab53032ea93ec5278a28ffb16ae8`, 9,364 rows.
 
 All passed.
 

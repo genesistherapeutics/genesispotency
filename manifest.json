@@ -1,6 +1,6 @@
 {
   "name": "GenesisPotency-2026",
-  "version": "v2026.1",
+  "version": "v2026",
   "license": "CC-BY-SA-4.0",
   "schema": "v4",
   "counts": {
@@ -57,8 +57,8 @@
       "sha256": "d0041a0142444a1e037156f6a5dd0d617b9c5f26afbef89c7b3a6fe11f77b9d5"
     },
     "README.md": {
-      "bytes": 22146,
-      "sha256": "e5620a22f59b00bd84eb071d5e765b77c0ed60ef67140f275ee5609c7589372d"
+      "bytes": 22113,
+      "sha256": "4ff99ba25c2fc8056f52290b2522b2927cc2540f29e268622636d34335f52f1b"
     },
     "assets/genesis-logo.png": {
       "bytes": 12257,
@@ -69,20 +69,20 @@
       "sha256": "b494807d2051af1b3d820d596c92b37a46962087539c4c9c933eddf7fa1c6df1"
     },
     "data/GenesisPotency-2026/hitid_benchmark.parquet": {
-      "bytes": 689883,
-      "sha256": "511d1fc203a927b4af15434086a68c4e2b75205fc6b2a444a9beea058fa3448e"
+      "bytes": 689881,
+      "sha256": "a345c7c8d1d099116d8a56e190cc25325523ab53032ea93ec5278a28ffb16ae8"
     },
     "data/GenesisPotency-2026/ranking_benchmark.parquet": {
-      "bytes": 144677,
-      "sha256": "83a19cef1418ef52085ab6634b19a473f41e49d4a6d3290c53f1d8c9d49fd1f7"
+      "bytes": 144675,
+      "sha256": "594b42b5b083c15b47fbc386f142e38f1687a28196723cafd4355e259a60da78"
     },
     "examples/quickstart.py": {
-      "bytes": 2383,
-      "sha256": "ad9965f1878109fda278d9c1c8d7d19d379660de31f38c954029448ca78977c3"
+      "bytes": 2381,
+      "sha256": "ecf3b6995c3b84faadd4eb3583065db73bd9a51958bace5d4416e99c8636a662"
     },
     "validation_report.md": {
       "bytes": 3633,
-      "sha256": "c4b308ca43ff051114d51b55342c5311cd9ba20e37db9d68ceb9adae9dce6cb9"
+      "sha256": "a177ef0027d2715ce246e637fd0b01ffae7be6d7234935d2406cbc61ea96f7e0"
     }
   }
 }

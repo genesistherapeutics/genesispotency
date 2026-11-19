@@ -30,7 +30,7 @@ active/inactive call, exactly as used in training, together with the upstream re
   hit-identification compounds (see [Benchmarks](#benchmarks)).
 
 **Get the data:** the files are hosted on Hugging Face at
-[genesisml/GenesisPotency](https://huggingface.co/datasets/genesisml/GenesisPotency/tree/v2026.1);
+[genesisml/GenesisPotency](https://huggingface.co/datasets/genesisml/GenesisPotency/tree/v2026);
 [Using it](#using-it) shows how to load them.
 
 ## Using it
@@ -43,7 +43,7 @@ python -m pip install polars huggingface_hub   # examples tested with polars 2.1
 import polars as pl
 
 # The full file needs about 11 GB of memory; pass columns=[...] to load less.
-df = pl.read_parquet("hf://datasets/genesisml/GenesisPotency@v2026.1/data/GenesisPotency-2026/data.parquet")
+df = pl.read_parquet("hf://datasets/genesisml/GenesisPotency@v2026/data/GenesisPotency-2026/data.parquet")
 
 potency = df.filter(pl.col("task") == "regression")                  # pIC50 / pKi / pKd
 exact = potency.filter(pl.col("label_relation") == "=")              # drop censored values
@@ -56,7 +56,7 @@ Or stream rows with the `datasets` library:
 ```python
 from datasets import load_dataset
 
-ds = load_dataset("genesisml/GenesisPotency", split="train", revision="v2026.1", streaming=True)
+ds = load_dataset("genesisml/GenesisPotency", split="train", revision="v2026", streaming=True)
 print(next(iter(ds)))
 ```
 
@@ -64,7 +64,7 @@ To download a local copy and run the quickstart:
 
 ```bash
 hf download genesisml/GenesisPotency data/GenesisPotency-2026/data.parquet \
-  --repo-type dataset --revision v2026.1 --local-dir .
+  --repo-type dataset --revision v2026 --local-dir .
 python examples/quickstart.py data/GenesisPotency-2026/data.parquet
 ```
 
@@ -106,7 +106,7 @@ ones:
 
 [DATA_DICTIONARY.md](DATA_DICTIONARY.md) describes every column, its type and when it is null,
 for both configurations. `GenesisPotency-2026` (the default) has a single `train` split;
-`GenesisPotency-2026-benchmarks` has the `ranking` and `hitid` splits. `v2026.1` is the release
+`GenesisPotency-2026-benchmarks` has the `ranking` and `hitid` splits. `v2026` is the release
 tag.
 
 ## How it was built
@@ -205,9 +205,9 @@ The benchmarks are the `GenesisPotency-2026-benchmarks` configuration, with the 
 from datasets import load_dataset
 
 ranking = load_dataset("genesisml/GenesisPotency", "GenesisPotency-2026-benchmarks",
-                       split="ranking", revision="v2026.1")
+                       split="ranking", revision="v2026")
 hitid = load_dataset("genesisml/GenesisPotency", "GenesisPotency-2026-benchmarks",
-                     split="hitid", revision="v2026.1")
+                     split="hitid", revision="v2026")
 ```
 
 ### The sets
@@ -266,7 +266,7 @@ import numpy as np
 import polars as pl
 from scipy.stats import pearsonr, spearmanr
 
-base = "hf://datasets/genesisml/GenesisPotency@v2026.1/data/GenesisPotency-2026"
+base = "hf://datasets/genesisml/GenesisPotency@v2026/data/GenesisPotency-2026"
 ranking = pl.read_parquet(f"{base}/ranking_benchmark.parquet")
 hitid = pl.read_parquet(f"{base}/hitid_benchmark.parquet")
 # Add your model's score for each row as a column "pred" (higher = more potent / more likely active).
@@ -359,7 +359,7 @@ accompanying paper's reference will be added here when it is published.
   author       = {{Genesis Molecular AI}},
   year         = {2026},
   howpublished = {\url{https://huggingface.co/datasets/genesisml/GenesisPotency}},
-  note         = {Release v2026.1}
+  note         = {Release v2026}
 }
 ```
 
@@ -373,12 +373,12 @@ Hugging Face Community tab. For a data problem, include the `row_id`.
 
 | File | Content |
 |---|---|
-| [`data/GenesisPotency-2026/data.parquet`](https://huggingface.co/datasets/genesisml/GenesisPotency/blob/v2026.1/data/GenesisPotency-2026/data.parquet) | The training data (one file, zstd; on Hugging Face) |
-| [`data/GenesisPotency-2026/ranking_benchmark.parquet`](https://huggingface.co/datasets/genesisml/GenesisPotency/blob/v2026.1/data/GenesisPotency-2026/ranking_benchmark.parquet), [`hitid_benchmark.parquet`](https://huggingface.co/datasets/genesisml/GenesisPotency/blob/v2026.1/data/GenesisPotency-2026/hitid_benchmark.parquet) | The benchmark splits `ranking` and `hitid` (on Hugging Face) |
+| [`data/GenesisPotency-2026/data.parquet`](https://huggingface.co/datasets/genesisml/GenesisPotency/blob/v2026/data/GenesisPotency-2026/data.parquet) | The training data (one file, zstd; on Hugging Face) |
+| [`data/GenesisPotency-2026/ranking_benchmark.parquet`](https://huggingface.co/datasets/genesisml/GenesisPotency/blob/v2026/data/GenesisPotency-2026/ranking_benchmark.parquet), [`hitid_benchmark.parquet`](https://huggingface.co/datasets/genesisml/GenesisPotency/blob/v2026/data/GenesisPotency-2026/hitid_benchmark.parquet) | The benchmark splits `ranking` and `hitid` (on Hugging Face) |
 | [DATA_DICTIONARY.md](DATA_DICTIONARY.md) | Every column: type, meaning, nulls |
 | [examples/quickstart.py](examples/quickstart.py) | Loading, filtering, deduplication, candidates |
 | [manifest.json](manifest.json) | Files, sizes, SHA-256, row counts |
 | [validation_report.md](validation_report.md) | Checks run on these files before release |
 | [NOTICE.md](NOTICE.md), [LICENSE](LICENSE) | Attribution, and the CC BY-SA 4.0 license |
 
-Release v2026.1 (2026). Row and context IDs are stable within this version.
+Release v2026. Row and context IDs are stable within this version.
