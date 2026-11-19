@@ -1,7 +1,9 @@
 <div align="center">
   <img src="assets/genesis-logo.png" width="88" alt="Genesis Molecular AI">
+  <h1 align="center">GenesisPotency-2026</h1>
+</div>
 
-# GenesisPotency-2026
+<div align="center">
 
 **5.4 million public protein–ligand potency and activity measurements, with full upstream provenance.**
 
