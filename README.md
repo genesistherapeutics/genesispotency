@@ -1,7 +1,5 @@
 # GenesisPotency-2026
 
-> The data file (`data/GenesisPotency-2026/data.parquet`, 214,000,327 bytes, SHA-256 `b494807d2051af1b3d820d596c92b37a46962087539c4c9c933eddf7fa1c6df1`) is hosted on [Hugging Face](https://huggingface.co/datasets/genesisml/GenesisPotency).
-
 GenesisPotency-2026 is the public-source part of the protein–ligand potency data used to train
 the models in [the accompanying paper](#citation). Every row is a compound, a protein target and
 either a potency value (pIC50, pKi, pKd) or an active/inactive call, exactly as the model saw it
