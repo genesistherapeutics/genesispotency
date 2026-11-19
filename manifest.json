@@ -57,8 +57,8 @@
       "sha256": "d0041a0142444a1e037156f6a5dd0d617b9c5f26afbef89c7b3a6fe11f77b9d5"
     },
     "README.md": {
-      "bytes": 22113,
-      "sha256": "4ff99ba25c2fc8056f52290b2522b2927cc2540f29e268622636d34335f52f1b"
+      "bytes": 21797,
+      "sha256": "2c1c35eb867252244173ccd9658a65170dec674594a18c895fe004eab38106dc"
     },
     "assets/genesis-logo.png": {
       "bytes": 12257,
@@ -79,10 +79,6 @@
     "examples/quickstart.py": {
       "bytes": 2381,
       "sha256": "ecf3b6995c3b84faadd4eb3583065db73bd9a51958bace5d4416e99c8636a662"
-    },
-    "validation_report.md": {
-      "bytes": 3633,
-      "sha256": "a177ef0027d2715ce246e637fd0b01ffae7be6d7234935d2406cbc61ea96f7e0"
     }
   }
 }

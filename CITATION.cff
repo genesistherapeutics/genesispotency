@@ -9,6 +9,15 @@ license: CC-BY-SA-4.0
 url: "https://huggingface.co/datasets/genesisml/GenesisPotency"
 repository: "https://huggingface.co/datasets/genesisml/GenesisPotency"
 repository-code: "https://github.com/genesistherapeutics/genesispotency"
+preferred-citation:
+  type: report
+  title: "Ruby: State-of-the-Art Potency Prediction across Discovery Regimes Using Learned Structural Representations"
+  authors:
+    - name: "Genesis Research Team"
+  institution:
+    name: "Genesis Molecular AI"
+  year: 2026
+  month: 11
 keywords:
   - drug discovery
   - bioactivity

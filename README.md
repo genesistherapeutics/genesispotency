@@ -36,7 +36,7 @@ active/inactive call, exactly as used in training, together with the upstream re
 ## Using it
 
 ```bash
-python -m pip install polars huggingface_hub   # examples tested with polars 2.1.0
+python -m pip install polars huggingface_hub datasets   # examples tested with polars 2.1.0
 ```
 
 ```python
@@ -107,7 +107,8 @@ ones:
 [DATA_DICTIONARY.md](DATA_DICTIONARY.md) describes every column, its type and when it is null,
 for both configurations. `GenesisPotency-2026` (the default) has a single `train` split;
 `GenesisPotency-2026-benchmarks` has the `ranking` and `hitid` splits. `v2026` is the release
-tag.
+tag; row and context IDs are stable within it. [manifest.json](manifest.json) lists every file
+with its size and SHA-256.
 
 ## How it was built
 
@@ -154,6 +155,12 @@ target accessions come from ChEMBL's target table (single-protein targets). Bind
 BindingDB imported from ChEMBL get the matching ChEMBL activity ID where exactly one ChEMBL 37
 activity matches on document, compound, endpoint, relation, value and target (869,258 of the
 900,697 such rows that have a single upstream record); `xref_source` lists which ID columns are such cross-references.
+
+**Checks.** Before release, every row was compared with the training data (labels, relations,
+binary calls, sequences and molecules unchanged) and every linked ChEMBL and BindingDB row with
+its upstream record (value, relation, units, document, compound). The benchmark labels equal the
+paper's evaluation data, and the training-overlap columns were validated with positive and
+negative controls.
 
 ## Things to know before using it
 
@@ -350,10 +357,20 @@ redistribute or adapt this dataset.
 
 ## Citation
 
-If you use this dataset, cite it and the upstream sources listed in [NOTICE.md](NOTICE.md). The
-accompanying paper's reference will be added here when it is published.
+If you use this dataset, cite the accompanying technical report and the dataset, and the
+upstream sources listed in [NOTICE.md](NOTICE.md).
 
 ```bibtex
+@techreport{genesis2026ruby,
+  title       = {{Ruby}: State-of-the-Art Potency Prediction across Discovery Regimes Using Learned
+                 Structural Representations},
+  author      = {{Genesis Research Team}},
+  institution = {Genesis Molecular AI},
+  type        = {Technical Report},
+  year        = {2026},
+  month       = nov
+}
+
 @misc{genesispotency2026,
   title        = {{GenesisPotency-2026}: public protein--ligand potency data with upstream provenance},
   author       = {{Genesis Molecular AI}},
@@ -368,17 +385,3 @@ accompanying paper's reference will be added here when it is published.
 Questions and corrections: open an issue on
 [GitHub](https://github.com/genesistherapeutics/genesispotency/issues) or a discussion in the
 Hugging Face Community tab. For a data problem, include the `row_id`.
-
-## Files and version
-
-| File | Content |
-|---|---|
-| [`data/GenesisPotency-2026/data.parquet`](https://huggingface.co/datasets/genesisml/GenesisPotency/blob/v2026/data/GenesisPotency-2026/data.parquet) | The training data (one file, zstd; on Hugging Face) |
-| [`data/GenesisPotency-2026/ranking_benchmark.parquet`](https://huggingface.co/datasets/genesisml/GenesisPotency/blob/v2026/data/GenesisPotency-2026/ranking_benchmark.parquet), [`hitid_benchmark.parquet`](https://huggingface.co/datasets/genesisml/GenesisPotency/blob/v2026/data/GenesisPotency-2026/hitid_benchmark.parquet) | The benchmark splits `ranking` and `hitid` (on Hugging Face) |
-| [DATA_DICTIONARY.md](DATA_DICTIONARY.md) | Every column: type, meaning, nulls |
-| [examples/quickstart.py](examples/quickstart.py) | Loading, filtering, deduplication, candidates |
-| [manifest.json](manifest.json) | Files, sizes, SHA-256, row counts |
-| [validation_report.md](validation_report.md) | Checks run on these files before release |
-| [NOTICE.md](NOTICE.md), [LICENSE](LICENSE) | Attribution, and the CC BY-SA 4.0 license |
-
-Release v2026. Row and context IDs are stable within this version.
