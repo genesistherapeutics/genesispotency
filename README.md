@@ -157,4 +157,4 @@ If you use this dataset, cite the accompanying paper and the upstream sources li
 | `validation_report.md` | Checks run on this file before release |
 | `NOTICE.md`, `LICENSE` | Attribution, and the full CC BY-SA 4.0 license |
 
-Version 1.0 (2026). Row and context IDs are stable within this version.
+Release v2026.1 (2026). Row and context IDs are stable within this version.
