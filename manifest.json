@@ -1,0 +1,84 @@
+{
+  "name": "GenesisPotency-2026",
+  "version": "v2026",
+  "license": "CC-BY-SA-4.0",
+  "schema": "v4",
+  "counts": {
+    "assay_contexts": 69939,
+    "by_source_task": {
+      "BindingDB/classification": 502528,
+      "BindingDB/regression": 1022070,
+      "ChEMBL/classification": 350975,
+      "ChEMBL/regression": 751201,
+      "PubChem/classification": 2583180
+    },
+    "corrected_by_agent": {
+      "label": 854,
+      "none": 5409165,
+      "structure": 597
+    },
+    "decoys": 200662,
+    "rows": 5410616
+  },
+  "benchmark_counts": {
+    "ranking": {
+      "rows": 1594,
+      "by_benchmark_family": {
+        "CASP16": 140,
+        "FEP+4": 87,
+        "OpenBind": 494,
+        "OpenFE": 873
+      }
+    },
+    "hitid": {
+      "rows": 9364,
+      "by_benchmark_family": {
+        "CACHE": 6874,
+        "Docking screen": 2490
+      }
+    }
+  },
+  "upstream": {
+    "ChEMBL": "37",
+    "BindingDB": "2026-07",
+    "PubChem": "HTS bioassays retrieved Aug-Oct 2025"
+  },
+  "files": {
+    "DATA_DICTIONARY.md": {
+      "bytes": 10404,
+      "sha256": "b975463f4176f810424e69acdcd01bda0d87a60e8bb0896d1481adc1dd7b6037"
+    },
+    "LICENSE": {
+      "bytes": 18375,
+      "sha256": "cde7883b9050a1104f4ac19a1572aafd6e5d7323b68351aaf51fbf4beba54966"
+    },
+    "NOTICE.md": {
+      "bytes": 6982,
+      "sha256": "d0041a0142444a1e037156f6a5dd0d617b9c5f26afbef89c7b3a6fe11f77b9d5"
+    },
+    "README.md": {
+      "bytes": 21797,
+      "sha256": "2c1c35eb867252244173ccd9658a65170dec674594a18c895fe004eab38106dc"
+    },
+    "assets/genesis-logo.png": {
+      "bytes": 12257,
+      "sha256": "f35fb74af0af33b93af127b2ac8b3a90e26734efd3b77095665997142ed206f2"
+    },
+    "data/GenesisPotency-2026/data.parquet": {
+      "bytes": 214000327,
+      "sha256": "b494807d2051af1b3d820d596c92b37a46962087539c4c9c933eddf7fa1c6df1"
+    },
+    "data/GenesisPotency-2026/hitid_benchmark.parquet": {
+      "bytes": 689881,
+      "sha256": "a345c7c8d1d099116d8a56e190cc25325523ab53032ea93ec5278a28ffb16ae8"
+    },
+    "data/GenesisPotency-2026/ranking_benchmark.parquet": {
+      "bytes": 144675,
+      "sha256": "594b42b5b083c15b47fbc386f142e38f1687a28196723cafd4355e259a60da78"
+    },
+    "examples/quickstart.py": {
+      "bytes": 2381,
+      "sha256": "ecf3b6995c3b84faadd4eb3583065db73bd9a51958bace5d4416e99c8636a662"
+    }
+  }
+}
