@@ -78,10 +78,8 @@ source; cite the original work when you use a set.
   (https://zinc.docking.org). Cite these papers when you use the sets.
 - **CASP16 pharma ligand affinities** (autotaxin and chymase, data provided by F. Hoffmann-La
   Roche AG), CASP16 Prediction Center, https://predictioncenter.org; assessment in Gilson et al.,
-  https://doi.org/10.1002/prot.70061. **Not redistributed:** `benchmarks/fetch_casp16.py`
-  downloads the organizers' files. The membership file ships only compound IDs, target
-  sequences and InChIKeys, so the script can check its rebuild.
-
+  https://doi.org/10.1002/prot.70061. The organizers' files state no licence; the
+  structures and affinities are shared here with this attribution.
 Changes made to the benchmark sets: rows were limited to the compounds the paper evaluates;
 structures were canonicalised with RDKit and InChIKeys computed; potency values were expressed as
 pX; for CACHE #1 the active call was redefined as curated Kd ≤ 150 µM (the original call is kept

@@ -84,20 +84,19 @@ The training data is one Parquet file, 49 columns, one row per training example.
 ## Benchmarks
 
 `GenesisPotency-2026-benchmarks` has two splits with the same 33 columns:
-`ranking` (`data/GenesisPotency-2026-benchmarks/ranking.parquet`, potency values) and `hitid`
-(`hitid.parquet`, active/inactive calls). `benchmarks/fetch_casp16.py` writes the CASP16 rows
-in the same columns.
+`ranking` (`data/GenesisPotency-2026/ranking_benchmark.parquet`, potency values) and `hitid`
+(`data/GenesisPotency-2026/hitid_benchmark.parquet`, active/inactive calls).
 
 | Column | Type | Meaning |
 |---|---|---|
-| `row_id` | string | `GP26-R` (ranking) or `GP26-H` (hit-ID) + 5 digits, dense; the CASP16 rows written by the fetch script follow the shipped ranking rows. Stable within this version |
+| `row_id` | string | `GP26-R` (ranking) or `GP26-H` (hit-ID) + 5 digits, dense in file order. Stable within this version |
 | `benchmark` | string | The evaluation set the row belongs to, e.g. `openfe_jacs_set_tyk2`, `hitid_cache2_nsp13`. Score within a set |
 | `benchmark_family` | string | `OpenFE`, `FEP+4`, `CASP16`, `OpenBind`, `CACHE`, `Docking screen` (AmpC, D4, σ2) |
 | `task`, `category`, `readout` | string | As in the training data: `regression` / `pX` / `IC50`, `Ki`, `Kd`, or `unspecified` (OpenFE, whose tables give a pX without its endpoint); `classification` / `active` or `inactive` / `binary` |
 | `smiles` | string | RDKit canonical SMILES of `source_smiles` |
 | `inchikey` | string | Stereo-aware InChIKey of `source_smiles`; with `benchmark` it identifies a compound |
-| `source_smiles` | string | The structure as the benchmark deposits it (CASP16: the organizers' string) |
-| `model_input_smiles` | string | The protonation state the paper's models were given; null on CASP16 rows |
+| `source_smiles` | string | The structure as the benchmark deposits it (CASP16: re-encoded from the organizers' SMILES, same molecule) |
+| `model_input_smiles` | string | The protonation state the paper's models were given |
 | `target_name` | string | Target as the benchmark names it |
 | `target_sequence`, `target_sequence_md5` | string | Protein sequence the paper's models were given, and its MD5 |
 | `label`, `label_relation`, `pX` | float, string, float | Regression only, as in the training data: `label = clip(pX − 6, −6, 6)`; relation in pX sense |

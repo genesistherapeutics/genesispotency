@@ -18,9 +18,6 @@ Molecular AI used to train the potency models in the accompanying paper (see [Ci
 Every row is a compound, a protein target and either a potency value (pIC50, pKi, pKd) or an
 active/inactive call, exactly as used in training, together with the upstream record it came from.
 
-**Get the data:** the files are hosted on Hugging Face at
-[genesisml/GenesisPotency](https://huggingface.co/datasets/genesisml/GenesisPotency/tree/v2026.1); [Using it](#using-it) shows how to load them.
-
 - **5,410,616 rows** from ChEMBL 37, BindingDB (2026-07) and PubChem HTS bioassays.
 - **1,773,271 potency measurements** and **3,637,345 binary calls**, including 200,662
   property-matched synthetic decoys.
@@ -29,8 +26,50 @@ active/inactive call, exactly as used in training, together with the upstream re
   or PubChem AID/CID/SID, with the document, target accession and the value as published.
 - 1,451 rows were **corrected by an LLM agent** that checked source documents, and are flagged.
 - The paper's **public evaluation sets** ship beside the training data as a separate
-  configuration: 1,594 potency observations for ranking (140 rebuilt by a script) and 9,364
+  configuration: 1,594 potency observations for ranking and 9,364
   hit-identification compounds (see [Benchmarks](#benchmarks)).
+
+**Get the data:** the files are hosted on Hugging Face at
+[genesisml/GenesisPotency](https://huggingface.co/datasets/genesisml/GenesisPotency/tree/v2026.1);
+[Using it](#using-it) shows how to load them.
+
+## Using it
+
+```bash
+python -m pip install polars huggingface_hub   # examples tested with polars 2.1.0
+```
+
+```python
+import polars as pl
+
+# The full file needs about 11 GB of memory; pass columns=[...] to load less.
+df = pl.read_parquet("hf://datasets/genesisml/GenesisPotency@v2026.1/data/GenesisPotency-2026/data.parquet")
+
+potency = df.filter(pl.col("task") == "regression")                  # pIC50 / pKi / pKd
+exact = potency.filter(pl.col("label_relation") == "=")              # drop censored values
+dedup = df.filter(pl.col("duplicate_of_row_id").is_null())           # one copy per measurement
+measured = df.filter(pl.col("category") != "synthetic_decoy")        # no decoys
+```
+
+Or stream rows with the `datasets` library:
+
+```python
+from datasets import load_dataset
+
+ds = load_dataset("genesisml/GenesisPotency", split="train", revision="v2026.1", streaming=True)
+print(next(iter(ds)))
+```
+
+To download a local copy and run the quickstart:
+
+```bash
+hf download genesisml/GenesisPotency data/GenesisPotency-2026/data.parquet \
+  --repo-type dataset --revision v2026.1 --local-dir .
+python examples/quickstart.py data/GenesisPotency-2026/data.parquet
+```
+
+[examples/quickstart.py](examples/quickstart.py) shows filtering, deduplication, agent-corrected
+rows, ambiguous rows and decoys.
 
 ## What is in it
 
@@ -45,6 +84,30 @@ active/inactive call, exactly as used in training, together with the upstream re
 Potency endpoints: IC50 1,148,723 rows, Ki 502,046, Kd 122,502. Targets are counted as distinct
 sequences. Every context belongs to one source; decoys sit in the contexts of their source, and
 2,503 contexts hold only decoys (see Decoys).
+
+## Dataset structure
+
+The training data is one Parquet file, one row per training example, 49 columns. The most used
+ones:
+
+| Column | Meaning |
+|---|---|
+| `row_id`, `assay_context_id` | Row ID, and the upstream assay on one target the row belongs to |
+| `smiles` | Canonical SMILES of the compound as trained |
+| `target_sequence`, `target_accession` | Protein sequence as trained, and its UniProt or NCBI accession |
+| `task`, `readout` | `regression` (`IC50`, `Ki`, `Kd`) or `classification` (`binary`) |
+| `label`, `label_relation`, `pX` | Regression label `clip(pX − 6, −6, 6)`, its relation in pX sense, and pX |
+| `label_is_hit` | Classification label: 1 active, 0 inactive |
+| `category` | `pX`, `active`, `inactive` or `synthetic_decoy` |
+| `retrieved_from`, `chembl_activity_id`, `bindingdb_reactant_set_id`, `pubchem_aid` | Upstream source and record |
+| `source_value`, `source_units`, `source_relation`, `source_smiles` | The upstream measurement and structure, unmodified |
+| `duplicate_of_row_id` | Set on BindingDB rows that repeat a ChEMBL row in this file |
+| `corrected_by_agent` | `label`, `structure` or `none` |
+
+[DATA_DICTIONARY.md](DATA_DICTIONARY.md) describes every column, its type and when it is null,
+for both configurations. `GenesisPotency-2026` (the default) has a single `train` split;
+`GenesisPotency-2026-benchmarks` has the `ranking` and `hitid` splits. `v2026.1` is the release
+tag.
 
 ## How it was built
 
@@ -92,6 +155,40 @@ BindingDB imported from ChEMBL get the matching ChEMBL activity ID where exactly
 activity matches on document, compound, endpoint, relation, value and target (869,258 of the
 900,697 such rows that have a single upstream record); `xref_source` lists which ID columns are such cross-references.
 
+## Things to know before using it
+
+- **Duplicates across sources.** BindingDB re-hosts much of ChEMBL. 504,807 BindingDB rows are the
+  same measurement as a ChEMBL row in this file and point to it with `duplicate_of_row_id`; both
+  copies were used in training. A further 30,961 BindingDB rows share a ChEMBL activity with a
+  row of the other task; use `chembl_activity_id` to find them. Duplicate pairs can draw the
+  compound differently (a few thousand pairs differ by tautomer, e.g. azo vs hydrazone, or by
+  stereo only), and about 12,000 pairs carry different target sequences (often the same
+  accession). Paired potency labels can differ by up to 0.02 from rounding.
+- **Ambiguous rows.** 40,396 classification rows match two or more upstream measurements of the
+  same compound in the same assay and target; usually their values differ, and one BindingDB
+  record can contribute several endpoints. The measurements are listed in
+  `source_record_candidates`; the row's own record and value columns are null, and other scalar
+  columns are filled only where every candidate agrees.
+- **Assay contexts** group one upstream assay on one target: a ChEMBL assay, a BindingDB deposition
+  (its PubChem AID if it has one, otherwise its article or patent), or a PubChem AID. Regression
+  and binary rows of the same assay share a context.
+- **Origin.** `origin` says who originally curated the record. 933,074 BindingDB rows come from
+  ChEMBL and 275,295 ChEMBL rows come from BindingDB's patent curation.
+
+## Known limitations
+
+- Recovered ChEMBL activity IDs on BindingDB rows are matched, not given: an independent audit of
+  232 matches found 2 pointing at a different compound (about 1%).
+- PubChem target accessions are mostly NCBI protein IDs (`target_accession_namespace`); PubChem
+  rows have no target name or organism.
+- BindingDB measurement conditions are given as BindingDB states them; some "°C" temperatures are
+  in kelvin.
+- Two training rows and one decoy partner contain a dummy atom (`*`); that partner has no InChIKey.
+- Censored values are clipped into the label range in pX sense; 11 clipped rows turned
+  "pX < 13" into "pX < 12".
+- Binary calls, decoy generation and the time split follow the paper and are not re-derivable
+  from this file alone.
+
 ## Benchmarks
 
 The `GenesisPotency-2026-benchmarks` configuration holds the public evaluation sets reported in
@@ -99,14 +196,28 @@ the paper, with their labels, provenance and overlap with the training data. The
 **separate from the training data**. They are not a new, untouched test set: the paper's
 evaluations informed method development.
 
-### What is in it
+### Loading them
+
+The benchmarks are the `GenesisPotency-2026-benchmarks` configuration, with the splits
+`ranking` and `hitid` ([How to evaluate](#how-to-evaluate) reads them with polars):
+
+```python
+from datasets import load_dataset
+
+ranking = load_dataset("genesisml/GenesisPotency", "GenesisPotency-2026-benchmarks",
+                       split="ranking", revision="v2026.1")
+hitid = load_dataset("genesisml/GenesisPotency", "GenesisPotency-2026-benchmarks",
+                     split="hitid", revision="v2026.1")
+```
+
+### The sets
 
 | Split | Family | Sets | Rows | Labels | Source |
 |---|---|---:|---:|---|---|
 | `ranking` | OpenFE | 58 | 873 | pX | OpenFE industry benchmark |
 | `ranking` | FEP+4 | 4 | 87 | pX (IC50, Ki) | FEP+ benchmark series CDK2, JNK1, p38, TYK2 |
 | `ranking` | OpenBind | 1 | 494 | pKd | OpenBind EV-A71 2A release (the paper's cohort) |
-| `ranking` | CASP16 | 2 | 140 | pIC50 | CASP16 pharma ligands; rebuilt by `benchmarks/fetch_casp16.py` |
+| `ranking` | CASP16 | 2 | 140 | pIC50 | CASP16 pharma ligands (autotaxin, chymase) |
 | `hitid` | CACHE #1–#4 | 4 | 6,874 | active / inactive (502 active) | CACHE hit-finding challenges |
 | `hitid` | Docking screen | 3 | 2,490 | active / inactive (506 active) | AmpC, D4 and σ2 large-scale docking campaigns |
 
@@ -155,9 +266,9 @@ import numpy as np
 import polars as pl
 from scipy.stats import pearsonr, spearmanr
 
-base = "hf://datasets/genesisml/GenesisPotency@v2026.1/data/GenesisPotency-2026-benchmarks"
-ranking = pl.read_parquet(f"{base}/ranking.parquet")
-hitid = pl.read_parquet(f"{base}/hitid.parquet")
+base = "hf://datasets/genesisml/GenesisPotency@v2026.1/data/GenesisPotency-2026"
+ranking = pl.read_parquet(f"{base}/ranking_benchmark.parquet")
+hitid = pl.read_parquet(f"{base}/hitid_benchmark.parquet")
 # Add your model's score for each row as a column "pred" (higher = more potent / more likely active).
 
 
@@ -201,16 +312,14 @@ def hitid_score(df: pl.DataFrame, q: float = 0.01) -> float:
   OpenBind's own flags mark as non-covalent, structurally valid and not a suspected artefact,
   with one crystal structure per compound.
 - **CASP16.** The autotaxin construct is the rat protein. Nine autotaxin compounds sit at the
-  assay's 10 µM ceiling; the fetch script writes them as `pX < 5`.
+  assay's 10 µM ceiling and are stored as `pX < 5`. The organizers' files state no licence;
+  the rows are shared here with credit to CASP16 and Roche (see NOTICE).
 - **Overlap with the training data** is given on every row. No OpenFE, FEP+4 or hit-ID target
   reaches the training-exclusion threshold against a training target (highest identity 0.899,
   0.84 and 0.81).
   CASP16 and OpenBind are separated from training by the date cutoff only, so their targets do
   have close training targets (`target_in_training`), and 11 CASP16 compound–target pairs also
   appear in training (`pair_in_training`).
-- **CASP16** files state no licence, so this release does not copy them.
-  `benchmarks/fetch_casp16.py` downloads them from the Prediction Center, checks that they are
-  the files the paper used and writes the 140 rows in the same columns.
 - **Structures are as the benchmarks deposit them.** 144 hit-ID structures (128 CACHE, 16 docking
   screen) are salts or solvates with several components; in 54 CACHE structures a chloride is
   written as a neutral chlorine atom (`[Cl]`), probably an HCl salt. Their `inchikey` describes the whole mixture; compare compounds
@@ -218,122 +327,6 @@ def hitid_score(df: pl.DataFrame, q: float = 0.01) -> float:
   deposited as cations, two of them with an implausible protonated amide (`C([NH3+])=O`), and
   for one FEP+4 p38 compound (2x) the structure file and the label table give opposite
   stereocentres; `source_smiles` follows the structure file.
-
-## Dataset structure
-
-The training data is one Parquet file, one row per training example, 49 columns. The most used
-ones:
-
-| Column | Meaning |
-|---|---|
-| `row_id`, `assay_context_id` | Row ID, and the upstream assay on one target the row belongs to |
-| `smiles` | Canonical SMILES of the compound as trained |
-| `target_sequence`, `target_accession` | Protein sequence as trained, and its UniProt or NCBI accession |
-| `task`, `readout` | `regression` (`IC50`, `Ki`, `Kd`) or `classification` (`binary`) |
-| `label`, `label_relation`, `pX` | Regression label `clip(pX − 6, −6, 6)`, its relation in pX sense, and pX |
-| `label_is_hit` | Classification label: 1 active, 0 inactive |
-| `category` | `pX`, `active`, `inactive` or `synthetic_decoy` |
-| `retrieved_from`, `chembl_activity_id`, `bindingdb_reactant_set_id`, `pubchem_aid` | Upstream source and record |
-| `source_value`, `source_units`, `source_relation`, `source_smiles` | The upstream measurement and structure, unmodified |
-| `duplicate_of_row_id` | Set on BindingDB rows that repeat a ChEMBL row in this file |
-| `corrected_by_agent` | `label`, `structure` or `none` |
-
-[DATA_DICTIONARY.md](DATA_DICTIONARY.md) describes every column, its type and when it is null,
-for both configurations. `GenesisPotency-2026` (the default) has a single `train` split;
-`GenesisPotency-2026-benchmarks` has the `ranking` and `hitid` splits. `v2026.1` is the release
-tag.
-
-## Using it
-
-```bash
-python -m pip install polars huggingface_hub   # examples tested with polars 2.1.0
-```
-
-```python
-import polars as pl
-
-# The full file needs about 11 GB of memory; pass columns=[...] to load less.
-df = pl.read_parquet("hf://datasets/genesisml/GenesisPotency@v2026.1/data/GenesisPotency-2026/data.parquet")
-
-potency = df.filter(pl.col("task") == "regression")                  # pIC50 / pKi / pKd
-exact = potency.filter(pl.col("label_relation") == "=")              # drop censored values
-dedup = df.filter(pl.col("duplicate_of_row_id").is_null())           # one copy per measurement
-measured = df.filter(pl.col("category") != "synthetic_decoy")        # no decoys
-```
-
-Or stream rows with the `datasets` library:
-
-```python
-from datasets import load_dataset
-
-ds = load_dataset("genesisml/GenesisPotency", split="train", revision="v2026.1", streaming=True)
-print(next(iter(ds)))
-```
-
-To download a local copy and run the quickstart:
-
-```bash
-hf download genesisml/GenesisPotency data/GenesisPotency-2026/data.parquet \
-  --repo-type dataset --revision v2026.1 --local-dir .
-python examples/quickstart.py data/GenesisPotency-2026/data.parquet
-```
-
-[examples/quickstart.py](examples/quickstart.py) shows filtering, deduplication, agent-corrected
-rows, ambiguous rows and decoys.
-
-The benchmarks are the `GenesisPotency-2026-benchmarks` configuration (see
-[How to evaluate](#how-to-evaluate) for reading them with polars):
-
-```python
-from datasets import load_dataset
-
-ranking = load_dataset("genesisml/GenesisPotency", "GenesisPotency-2026-benchmarks",
-                       split="ranking", revision="v2026.1")
-hitid = load_dataset("genesisml/GenesisPotency", "GenesisPotency-2026-benchmarks",
-                     split="hitid", revision="v2026.1")
-```
-
-To add the CASP16 rows (needs `rdkit` and access to predictioncenter.org):
-
-```bash
-hf download genesisml/GenesisPotency --repo-type dataset --revision v2026.1 --local-dir . \
-  --include "benchmarks/*"
-python benchmarks/fetch_casp16.py --out casp16.parquet
-```
-
-## Things to know before using it
-
-- **Duplicates across sources.** BindingDB re-hosts much of ChEMBL. 504,807 BindingDB rows are the
-  same measurement as a ChEMBL row in this file and point to it with `duplicate_of_row_id`; both
-  copies were used in training. A further 30,961 BindingDB rows share a ChEMBL activity with a
-  row of the other task; use `chembl_activity_id` to find them. Duplicate pairs can draw the
-  compound differently (a few thousand pairs differ by tautomer, e.g. azo vs hydrazone, or by
-  stereo only), and about 12,000 pairs carry different target sequences (often the same
-  accession). Paired potency labels can differ by up to 0.02 from rounding.
-- **Ambiguous rows.** 40,396 classification rows match two or more upstream measurements of the
-  same compound in the same assay and target; usually their values differ, and one BindingDB
-  record can contribute several endpoints. The measurements are listed in
-  `source_record_candidates`; the row's own record and value columns are null, and other scalar
-  columns are filled only where every candidate agrees.
-- **Assay contexts** group one upstream assay on one target: a ChEMBL assay, a BindingDB deposition
-  (its PubChem AID if it has one, otherwise its article or patent), or a PubChem AID. Regression
-  and binary rows of the same assay share a context.
-- **Origin.** `origin` says who originally curated the record. 933,074 BindingDB rows come from
-  ChEMBL and 275,295 ChEMBL rows come from BindingDB's patent curation.
-
-## Known limitations
-
-- Recovered ChEMBL activity IDs on BindingDB rows are matched, not given: an independent audit of
-  232 matches found 2 pointing at a different compound (about 1%).
-- PubChem target accessions are mostly NCBI protein IDs (`target_accession_namespace`); PubChem
-  rows have no target name or organism.
-- BindingDB measurement conditions are given as BindingDB states them; some "°C" temperatures are
-  in kelvin.
-- Two training rows and one decoy partner contain a dummy atom (`*`); that partner has no InChIKey.
-- Censored values are clipped into the label range in pX sense; 11 clipped rows turned
-  "pX < 13" into "pX < 12".
-- Binary calls, decoy generation and the time split follow the paper and are not re-derivable
-  from this file alone.
 
 ## Intended use
 
@@ -351,8 +344,8 @@ GenesisPotency-2026 is released under
 PubChem (deposited by many organisations; see each AID's depositor) and UniProt (CC BY 4.0, for
 target accessions). The benchmark configuration also adapts the OpenFE, FEP+ and PLB benchmarks
 and the Mattsson–Walters benchmark tables (MIT), CACHE challenge results (which CACHE shares
-under CC BY 4.0), the OpenBind release (CC0 1.0) and the published results of three docking
-campaigns. See [NOTICE.md](NOTICE.md) for the attributions and citations you must keep when you
+under CC BY 4.0), the OpenBind release (CC0 1.0), the published results of three docking
+campaigns, and the CASP16 affinities (no licence stated; shared with attribution). See [NOTICE.md](NOTICE.md) for the attributions and citations you must keep when you
 redistribute or adapt this dataset.
 
 ## Citation
@@ -381,8 +374,7 @@ Hugging Face Community tab. For a data problem, include the `row_id`.
 | File | Content |
 |---|---|
 | [`data/GenesisPotency-2026/data.parquet`](https://huggingface.co/datasets/genesisml/GenesisPotency/blob/v2026.1/data/GenesisPotency-2026/data.parquet) | The training data (one file, zstd; on Hugging Face) |
-| [`data/GenesisPotency-2026-benchmarks/`](https://huggingface.co/datasets/genesisml/GenesisPotency/tree/v2026.1/data/GenesisPotency-2026-benchmarks) | The benchmark splits `ranking.parquet`, `hitid.parquet` (on Hugging Face) |
-| `benchmarks/fetch_casp16.py`, `benchmarks/ranking_casp16_membership.parquet` | Rebuilds the CASP16 rows from the organizers' files |
+| [`data/GenesisPotency-2026/ranking_benchmark.parquet`](https://huggingface.co/datasets/genesisml/GenesisPotency/blob/v2026.1/data/GenesisPotency-2026/ranking_benchmark.parquet), [`hitid_benchmark.parquet`](https://huggingface.co/datasets/genesisml/GenesisPotency/blob/v2026.1/data/GenesisPotency-2026/hitid_benchmark.parquet) | The benchmark splits `ranking` and `hitid` (on Hugging Face) |
 | [DATA_DICTIONARY.md](DATA_DICTIONARY.md) | Every column: type, meaning, nulls |
 | [examples/quickstart.py](examples/quickstart.py) | Loading, filtering, deduplication, candidates |
 | [manifest.json](manifest.json) | Files, sizes, SHA-256, row counts |
